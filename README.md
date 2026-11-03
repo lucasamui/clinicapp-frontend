@@ -1,4 +1,4 @@
-# ClinicaApp — Frontend Vue.js
+# ClinicaApp - Frontend Vue.js
 
 Interface web do sistema de gerenciamento de clínica médica, desenvolvida com Vue 3. Consome a API REST do backend Django.
 
