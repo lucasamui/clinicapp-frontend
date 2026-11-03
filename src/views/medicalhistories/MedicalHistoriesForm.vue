@@ -1,0 +1,70 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+import { useToast } from '../../composables/useToast.js'
+
+const { show } = useToast()
+const router = useRouter()
+const route = useRoute()
+const id = route.params.id
+
+const form = ref({ allergies: '', family_history: '', patient_name: '' })
+
+onMounted(async () => {
+  if (id) {
+    try {
+      const r = await axios.get(`medicalhistories/${id}/`)
+      form.value = r.data
+    } catch {
+      show('Erro ao carregar histórico.', 'error')
+    }
+  }
+})
+
+async function save() {
+  try {
+    if (id) {
+      await axios.put(`medicalhistories/${id}/`, form.value)
+    } else {
+      await axios.post('medicalhistories/', form.value)
+    }
+    show(id ? 'Histórico atualizado com sucesso.' : 'Histórico criado com sucesso.')
+    router.push('/medicalhistories')
+  } catch {
+    show('Erro ao salvar histórico.', 'error')
+  }
+}
+</script>
+
+<template>
+  <div class="page-header">
+    <div>
+      <h1>{{ id ? 'Editar Histórico' : 'Novo Histórico Médico' }}</h1>
+      <div class="subtitle">Registro de histórico médico</div>
+    </div>
+    <RouterLink to="/medicalhistories" class="btn btn-ghost">← Voltar</RouterLink>
+  </div>
+  <div class="form-card">
+    <form @submit.prevent="save">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Alergias</label>
+          <textarea v-model="form.allergies" required></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Histórico Familiar</label>
+          <textarea v-model="form.family_history" required></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Nome do Paciente</label>
+          <input type="text" v-model="form.patient_name" required />
+        </div>
+      </div>
+      <div class="form-actions">
+        <RouterLink to="/medicalhistories" class="btn btn-ghost">Cancelar</RouterLink>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</template>
